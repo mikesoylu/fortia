@@ -81,6 +81,7 @@ package com.mikesoylu.fortia
 			var dt:Number = e.passedTime;
 			frameTime = dt;
 			var i:int;
+			
 			/* iterate over children */
 			for (i = 0; i < numChildren; i++)
 			{
@@ -90,8 +91,6 @@ package com.mikesoylu.fortia
 					(ch as fIBasic).update(dt);
 				}
 			}
-			
-			fGame.updateSounds(dt);
 			
 			update(dt);
 		}

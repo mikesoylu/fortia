@@ -10,8 +10,8 @@ package com.mikesoylu.fortia
 	 */
 	public class fSprite extends Sprite implements fIBasic
 	{
-		public var halfWidth:Number;
-		public var halfHeight:Number;
+		public var halfWidth:Number = NaN;
+		public var halfHeight:Number = NaN;
 		
 		public function update(dt:Number):void
 		{
@@ -29,6 +29,10 @@ package com.mikesoylu.fortia
 		 */
 		public function get rect():Rectangle 
 		{
+			if (isNaN(halfHeight) || isNaN(halfWidth))
+			{
+				throw new fError("halfHeight or halfWidth is not set");
+			}
 			return new Rectangle(x - halfWidth, y - halfHeight, halfWidth << 1, halfHeight << 1);
 		}
 	}

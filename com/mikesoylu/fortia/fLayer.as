@@ -37,6 +37,8 @@ package com.mikesoylu.fortia
 		/** this guy doesn't have a rect */
 		public final function get rect():Rectangle 
 		{
+			throw new fError("fLayer doesn't have a rect");
+			
 			return null;
 		}
 	}

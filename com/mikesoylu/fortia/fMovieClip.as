@@ -9,8 +9,8 @@ package com.mikesoylu.fortia
 	 */
 	public class fMovieClip extends MovieClip implements fIBasic 
 	{
-		public var halfWidth:Number;
-		public var halfHeight:Number;
+		public var halfWidth:Number = NaN;
+		public var halfHeight:Number = NaN;
 		
 		public function fMovieClip(textures:Vector.<Texture>, fps:int = 12) 
 		{
@@ -33,6 +33,10 @@ package com.mikesoylu.fortia
 		 */
 		public function get rect():Rectangle 
 		{
+			if (isNaN(halfHeight) || isNaN(halfWidth))
+			{
+				throw new fError("halfHeight or halfWidth is not set");
+			}
 			return new Rectangle(x - halfWidth, y - halfHeight, halfWidth << 1, halfHeight << 1);
 		}
 	}
