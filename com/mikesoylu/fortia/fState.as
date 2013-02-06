@@ -18,8 +18,6 @@ package com.mikesoylu.fortia
 		protected static var elapsedTime:Number = 0;
 		protected static var frameTime:Number = 0;
 		
-		// private var shakeCounter:Number = 0;
-		
 		public function fState() 
 		{
 			addEventListener(Event.ADDED, init);
@@ -42,12 +40,11 @@ package com.mikesoylu.fortia
 			Starling.juggler.add(tween);
 		}
 		
-		/** TODO: make this variable intensity */
-		public function shake(duration:Number):void
+		public function shake(duration:Number, intensity:Number = 20):void
 		{
 			// tween the screen to a random pos
-			this.x = Math.random() * 20 - 10;
-			this.y = Math.random() * 20 - 10;
+			this.x = Math.random() * intensity - intensity / 2;
+			this.y = Math.random() * intensity - intensity / 2;
 			if (shakeTween != null)
 			{
 				Starling.juggler.remove(shakeTween);
@@ -56,10 +53,12 @@ package com.mikesoylu.fortia
 			shakeTween.moveTo(0,0);
 			Starling.juggler.add(shakeTween);
 		}
+		
 		/** is called on enter frame, dt is in seconds */
 		public function update(dt:Number):void
 		{
 		}
+		
 		/** is called when state is removed */
 		public function destroy():void
 		{

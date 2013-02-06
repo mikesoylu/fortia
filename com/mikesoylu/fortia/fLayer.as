@@ -35,7 +35,7 @@ package com.mikesoylu.fortia
 			}
 		}
 		/** this guy doesn't have a rect */
-		public function get rect():Rectangle 
+		public final function get rect():Rectangle 
 		{
 			return null;
 		}

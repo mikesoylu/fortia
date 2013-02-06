@@ -219,52 +219,67 @@ package starling.display
         /** @inheritDoc */
         public function advanceTime(passedTime:Number):void
         {
+            if (!mPlaying || passedTime <= 0.0) return;
+            
             var finalFrame:int;
             var previousFrame:int = mCurrentFrame;
+            var restTime:Number = 0.0;
+            var breakAfterFrame:Boolean = false;
+            var hasCompleteListener:Boolean = hasEventListener(Event.COMPLETE); 
+            var dispatchCompleteEvent:Boolean = false;
             
-            if (mLoop && mCurrentTime == mTotalTime) { mCurrentTime = 0.0; mCurrentFrame = 0; }
-            if (!mPlaying || passedTime == 0.0 || mCurrentTime == mTotalTime) return;
+            if (mLoop && mCurrentTime == mTotalTime) 
+            { 
+                mCurrentTime = 0.0; 
+                mCurrentFrame = 0; 
+            }
             
-            mCurrentTime += passedTime;
-            finalFrame = mTextures.length - 1;
-            
-            while (mCurrentTime >= mStartTimes[mCurrentFrame] + mDurations[mCurrentFrame])
+            if (mCurrentTime < mTotalTime)
             {
-                if (mCurrentFrame == finalFrame)
+                mCurrentTime += passedTime;
+                finalFrame = mTextures.length - 1;
+                
+                while (mCurrentTime > mStartTimes[mCurrentFrame] + mDurations[mCurrentFrame])
                 {
-                    if (hasEventListener(Event.COMPLETE))
+                    if (mCurrentFrame == finalFrame)
                     {
-                        var restTime:Number = mCurrentTime - mTotalTime;
-                        mCurrentTime = mTotalTime;
-                        dispatchEventWith(Event.COMPLETE);
-                        
-                        // user might have changed movie clip settings, so we restart the method
-                        advanceTime(restTime);
-                        return;
-                    }
-                    
-                    if (mLoop)
-                    {
-                        mCurrentTime -= mTotalTime;
-                        mCurrentFrame = 0;
+                        if (mLoop && !hasCompleteListener)
+                        {
+                            mCurrentTime -= mTotalTime;
+                            mCurrentFrame = 0;
+                        }
+                        else
+                        {
+                            breakAfterFrame = true;
+                            restTime = mCurrentTime - mTotalTime;
+                            dispatchCompleteEvent = hasCompleteListener;
+                            mCurrentFrame = finalFrame;
+                            mCurrentTime = mTotalTime;
+                        }
                     }
                     else
                     {
-                        mCurrentTime = mTotalTime;
-                        break;
+                        mCurrentFrame++;
+                        
+                        // special case when we reach *exactly* the total time.
+                        if (mCurrentFrame == finalFrame && mCurrentTime == mTotalTime)
+                            dispatchCompleteEvent = hasCompleteListener;
                     }
-                }
-                else
-                {
-                    mCurrentFrame++;
                     
                     var sound:Sound = mSounds[mCurrentFrame];
                     if (sound) sound.play();
+                    if (breakAfterFrame) break;
                 }
             }
             
             if (mCurrentFrame != previousFrame)
                 texture = mTextures[mCurrentFrame];
+            
+            if (dispatchCompleteEvent)
+                dispatchEventWith(Event.COMPLETE);
+            
+            if (mLoop && restTime != 0)
+                advanceTime(restTime);
         }
         
         /** Indicates if a (non-looping) movie has come to its end. */
@@ -277,6 +292,9 @@ package starling.display
         
         /** The total duration of the clip in seconds. */
         public function get totalTime():Number { return mTotalTime; }
+        
+        /** The time that has passed since the clip was started (each loop starts at zero). */
+        public function get currentTime():Number { return mCurrentTime; }
         
         /** The total number of frames. */
         public function get numFrames():int { return mTextures.length; }
@@ -312,8 +330,14 @@ package starling.display
             mCurrentTime *= acceleration;
             mDefaultFrameDuration = newFrameDuration;
             
-            for (var i:int=0; i<numFrames; ++i)
-                setFrameDuration(i, getFrameDuration(i) * acceleration);
+            for (var i:int=0; i<numFrames; ++i) 
+            {
+                var duration:Number = mDurations[i] * acceleration;
+                mTotalTime = mTotalTime - mDurations[i] + duration;
+                mDurations[i] = duration;
+            }
+            
+            updateStartTimes();
         }
         
         /** Indicates if the clip is still playing. Returns <code>false</code> when the end 

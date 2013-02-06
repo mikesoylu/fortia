@@ -10,11 +10,24 @@
 
 package starling.core
 {
-    import flash.geom.*;
+    import com.adobe.utils.AGALMiniAssembler;
     
-    import starling.display.*;
+    import flash.display3D.Context3D;
+    import flash.display3D.Context3DProgramType;
+    import flash.display3D.Program3D;
+    import flash.geom.Matrix;
+    import flash.geom.Matrix3D;
+    import flash.geom.Point;
+    import flash.geom.Rectangle;
+    
+    import starling.display.BlendMode;
+    import starling.display.DisplayObject;
+    import starling.display.Quad;
+    import starling.display.QuadBatch;
+    import starling.errors.MissingContextError;
     import starling.textures.Texture;
-    import starling.utils.*;
+    import starling.utils.Color;
+    import starling.utils.MatrixUtil;
 
     /** A class that contains helper methods simplifying Stage3D rendering.
      *
@@ -33,11 +46,20 @@ package starling.core
         private var mMatrixStack:Vector.<Matrix>;
         private var mMatrixStackSize:int;
         private var mDrawCount:int;
-        private var mRenderTarget:Texture;
         private var mBlendMode:String;
+
+        private var mRenderTarget:Texture;
+        private var mBackBufferWidth:int;
+        private var mBackBufferHeight:int;
+        private var mScissorRectangle:Rectangle;
         
         private var mQuadBatches:Vector.<QuadBatch>;
         private var mCurrentQuadBatchID:int;
+        
+        /** helper objects */
+        private static var sPoint:Point = new Point();
+        private static var sRectangle:Rectangle = new Rectangle();
+        private static var sAssembler:AGALMiniAssembler = new AGALMiniAssembler();
         
         // construction
         
@@ -53,6 +75,7 @@ package starling.core
             mDrawCount = 0;
             mRenderTarget = null;
             mBlendMode = BlendMode.NORMAL;
+            mScissorRectangle = new Rectangle();
             
             mCurrentQuadBatchID = 0;
             mQuadBatches = new <QuadBatch>[new QuadBatch()];
@@ -119,13 +142,13 @@ package starling.core
             if (mMatrixStack.length < mMatrixStackSize + 1)
                 mMatrixStack.push(new Matrix());
             
-            mMatrixStack[mMatrixStackSize++].copyFrom(mModelViewMatrix);
+            mMatrixStack[int(mMatrixStackSize++)].copyFrom(mModelViewMatrix);
         }
         
         /** Restores the modelview matrix that was last pushed to the stack. */
         public function popMatrix():void
         {
-            mModelViewMatrix.copyFrom(mMatrixStack[--mMatrixStackSize]);
+            mModelViewMatrix.copyFrom(mMatrixStack[int(--mMatrixStackSize)]);
         }
         
         /** Empties the matrix stack, resets the modelview matrix to the identity matrix. */
@@ -190,6 +213,72 @@ package starling.core
             
             if (target) Starling.context.setRenderToTexture(target.base);
             else        Starling.context.setRenderToBackBuffer();
+        }
+        
+        /** Configures the back buffer on the current context3D. By using this method, Starling
+         *  can store the size of the back buffer and utilize this information in other methods
+         *  (e.g. the scissor rectangle property). Back buffer width and height can later be
+         *  accessed using the properties with the same name. */
+        public function configureBackBuffer(width:int, height:int, antiAlias:int, 
+                                            enableDepthAndStencil:Boolean):void
+        {
+            mBackBufferWidth  = width;
+            mBackBufferHeight = height;
+            Starling.context.configureBackBuffer(width, height, antiAlias, enableDepthAndStencil);
+        }
+        
+        /** The width of the back buffer, as it was configured in the last call to 
+         *  'RenderSupport.configureBackBuffer()'. Beware: changing this value does not actually
+         *  resize the back buffer; the setter should only be used to inform Starling about the
+         *  size of a back buffer it can't control (shared context situations).
+         */
+        public function get backBufferWidth():int { return mBackBufferWidth; }
+        public function set backBufferWidth(value:int):void { mBackBufferWidth = value; }
+        
+        /** The height of the back buffer, as it was configured in the last call to 
+         *  'RenderSupport.configureBackBuffer()'. Beware: changing this value does not actually
+         *  resize the back buffer; the setter should only be used to inform Starling about the
+         *  size of a back buffer it can't control (shared context situations).
+         */
+        public function get backBufferHeight():int { return mBackBufferHeight; }
+        public function set backBufferHeight(value:int):void { mBackBufferHeight = value; }
+        
+        // scissor rect
+        
+        /** The scissor rectangle can be used to limit rendering in the current render target to
+         *  a certain area. This method expects the rectangle in stage coordinates
+         *  (different to the context3D method with the same name, which expects pixels).
+         *  Pass <code>null</code> to turn off scissoring.
+         *  CAUTION: not a copy -- use with care! */ 
+        public function get scissorRectangle():Rectangle 
+        { 
+            return mScissorRectangle.isEmpty() ? null : mScissorRectangle; 
+        }
+        
+        public function set scissorRectangle(value:Rectangle):void
+        {
+            if (value)
+            {
+                mScissorRectangle.setTo(value.x, value.y, value.width, value.height);
+
+                var width:int  = mRenderTarget ? mRenderTarget.root.nativeWidth  : mBackBufferWidth;
+                var height:int = mRenderTarget ? mRenderTarget.root.nativeHeight : mBackBufferHeight;
+                
+                MatrixUtil.transformCoords(mProjectionMatrix, value.x, value.y, sPoint);
+                sRectangle.x = Math.max(0, ( sPoint.x + 1) / 2) * width;
+                sRectangle.y = Math.max(0, (-sPoint.y + 1) / 2) * height;
+                
+                MatrixUtil.transformCoords(mProjectionMatrix, value.right, value.bottom, sPoint);
+                sRectangle.right  = Math.min(1, ( sPoint.x + 1) / 2) * width;
+                sRectangle.bottom = Math.min(1, (-sPoint.y + 1) / 2) * height;
+                
+                Starling.context.setScissorRectangle(sRectangle);
+            }
+            else 
+            {
+                mScissorRectangle.setEmpty();
+                Starling.context.setScissorRectangle(null);
+            }
         }
         
         // optimized quad rendering
@@ -265,6 +354,26 @@ package starling.core
         public function clear(rgb:uint=0, alpha:Number=0.0):void
         {
             RenderSupport.clear(rgb, alpha);
+        }
+        
+        /** Assembles fragment- and vertex-shaders, passed as Strings, to a Program3D. If you
+         *  pass a 'resultProgram', it will be uploaded to that program; otherwise, a new program
+         *  will be created on the current Stage3D context. */ 
+        public static function assembleAgal(vertexShader:String, fragmentShader:String,
+                                            resultProgram:Program3D=null):Program3D
+        {
+            if (resultProgram == null) 
+            {
+                var context:Context3D = Starling.context;
+                if (context == null) throw new MissingContextError();
+                resultProgram = context.createProgram();
+            }
+            
+            resultProgram.upload(
+                sAssembler.assemble(Context3DProgramType.VERTEX, vertexShader),
+                sAssembler.assemble(Context3DProgramType.FRAGMENT, fragmentShader));
+            
+            return resultProgram;
         }
         
         // statistics

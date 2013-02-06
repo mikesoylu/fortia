@@ -63,6 +63,9 @@ package starling.text
      */
     public class TextField extends DisplayObjectContainer
     {
+        // the name container with the registered bitmap fonts
+        private static const BITMAP_FONT_DATA_NAME:String = "starling.display.TextField.BitmapFonts";
+        
         private var mFontSize:Number;
         private var mColor:uint;
         private var mText:String;
@@ -87,9 +90,6 @@ package starling.text
         
         // this object will be used for text rendering
         private static var sNativeTextField:flash.text.TextField = new flash.text.TextField();
-        
-        // this is the container for bitmap fonts
-        private static var sBitmapFonts:Dictionary = new Dictionary();
         
         /** Create a new text field with the given properties. */
         public function TextField(width:int, height:int, text:String, fontName:String="Verdana",
@@ -121,7 +121,7 @@ package starling.text
             super.dispose();
         }
         
-        private function onFlatten(event:Event):void
+        private function onFlatten():void
         {
             if (mRequiresRedraw) redrawContents();
         }
@@ -187,6 +187,8 @@ package starling.text
             if (mVAlign == VAlign.TOP)         yOffset = 2; // flash adds a 2 pixel offset
             else if (mVAlign == VAlign.CENTER) yOffset = (height - textHeight) / 2.0;
             else if (mVAlign == VAlign.BOTTOM) yOffset =  height - textHeight - 2;
+
+            formatText(sNativeTextField, textFormat);
             
             var bitmapData:BitmapData = new BitmapData(width, height, true, 0x0);
             bitmapData.draw(sNativeTextField, new Matrix(1, 0, 0, 1, 0, int(yOffset)-2));
@@ -212,7 +214,14 @@ package starling.text
                 mImage.readjustSize(); 
             }
         }
-        
+
+        /** formatText is called immediately before the text is rendered. The intent of formatText
+         *  is to be overridden in a subclass, so that you can provide custom formatting for TextField.
+         *  <code>textField</code> is the flash.text.TextField object that you can specially format;
+         *  <code>textFormat</code> is the default TextFormat for <code>textField</code>.
+         */
+        protected function formatText(textField:flash.text.TextField, textFormat:TextFormat):void {}
+
         private function autoScaleNativeTextField(textField:flash.text.TextField):void
         {
             var size:Number   = Number(textField.defaultTextFormat.size);
@@ -246,7 +255,7 @@ package starling.text
             else
                 mQuadBatch.reset();
             
-            var bitmapFont:BitmapFont = sBitmapFonts[mFontName];
+            var bitmapFont:BitmapFont = bitmapFonts[mFontName];
             if (bitmapFont == null) throw new Error("Bitmap font not registered: " + mFontName);
             
             bitmapFont.fillQuadBatch(mQuadBatch,
@@ -329,12 +338,12 @@ package starling.text
         {
             if (mFontName != value)
             {
-                if (value == BitmapFont.MINI && sBitmapFonts[value] == undefined)
+                if (value == BitmapFont.MINI && bitmapFonts[value] == undefined)
                     registerBitmapFont(new BitmapFont());
                 
                 mFontName = value;
                 mRequiresRedraw = true;
-                mIsRenderedText = sBitmapFonts[value] == undefined;
+                mIsRenderedText = bitmapFonts[value] == undefined;
             }
         }
         
@@ -481,29 +490,45 @@ package starling.text
             mRequiresRedraw = true;
         }
         
-        /** Makes a bitmap font available at any text field, identified by its <code>name</code>.
+        /** Makes a bitmap font available at any TextField in the current stage3D context.
+         *  The font is identified by its <code>name</code>.
          *  Per default, the <code>name</code> property of the bitmap font will be used, but you 
          *  can pass a custom name, as well. @returns the name of the font. */
         public static function registerBitmapFont(bitmapFont:BitmapFont, name:String=null):String
         {
             if (name == null) name = bitmapFont.name;
-            sBitmapFonts[name] = bitmapFont;
+            bitmapFonts[name] = bitmapFont;
             return name;
         }
         
         /** Unregisters the bitmap font and, optionally, disposes it. */
         public static function unregisterBitmapFont(name:String, dispose:Boolean=true):void
         {
-            if (dispose && sBitmapFonts[name] != undefined)
-                sBitmapFonts[name].dispose();
+            if (dispose && bitmapFonts[name] != undefined)
+                bitmapFonts[name].dispose();
             
-            delete sBitmapFonts[name];
+            delete bitmapFonts[name];
         }
         
         /** Returns a registered bitmap font (or null, if the font has not been registered). */
         public static function getBitmapFont(name:String):BitmapFont
         {
-            return sBitmapFonts[name];
+            return bitmapFonts[name];
+        }
+        
+        /** Stores the currently available bitmap fonts. Since a bitmap font will only work
+         *  in one Stage3D context, they are saved in Starling's 'contextData' property. */
+        private static function get bitmapFonts():Dictionary
+        {
+            var fonts:Dictionary = Starling.current.contextData[BITMAP_FONT_DATA_NAME] as Dictionary;
+            
+            if (fonts == null)
+            {
+                fonts = new Dictionary();
+                Starling.current.contextData[BITMAP_FONT_DATA_NAME] = fonts;
+            }
+            
+            return fonts;
         }
     }
 }

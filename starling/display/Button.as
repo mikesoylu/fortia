@@ -40,21 +40,21 @@ package starling.display
      */ 
     public class Button extends DisplayObjectContainer
     {
-        protected static const MAX_DRAG_DIST:Number = 50;
+        private static const MAX_DRAG_DIST:Number = 50;
         
-        protected var mUpState:Texture;
-        protected var mDownState:Texture;
+        private var mUpState:Texture;
+        private var mDownState:Texture;
         
-        protected var mContents:Sprite;
-        protected var mBackground:Image;
-        protected var mTextField:TextField;
-        protected var mTextBounds:Rectangle;
+        private var mContents:Sprite;
+        private var mBackground:Image;
+        private var mTextField:TextField;
+        private var mTextBounds:Rectangle;
         
-        protected var mScaleWhenDown:Number;
-        protected var mAlphaWhenDisabled:Number;
-        protected var mEnabled:Boolean;
-        protected var mIsDown:Boolean;
-        protected var mUseHandCursor:Boolean;
+        private var mScaleWhenDown:Number;
+        private var mAlphaWhenDisabled:Number;
+        private var mEnabled:Boolean;
+        private var mIsDown:Boolean;
+        private var mUseHandCursor:Boolean;
         
         /** Creates a button with textures for up- and down-state or text. */
         public function Button(upState:Texture, text:String="", downState:Texture=null)
@@ -79,7 +79,7 @@ package starling.display
             if (text.length != 0) this.text = text;
         }
         
-        protected function resetContents():void
+        private function resetContents():void
         {
             mIsDown = false;
             mBackground.texture = mUpState;
@@ -87,7 +87,7 @@ package starling.display
             mContents.scaleX = mContents.scaleY = 1.0;
         }
         
-        protected function createTextField():void
+        private function createTextField():void
         {
             if (mTextField == null)
             {
@@ -105,7 +105,7 @@ package starling.display
             mTextField.y = mTextBounds.y;
         }
         
-        protected function onTouch(event:TouchEvent):void
+        private function onTouch(event:TouchEvent):void
         {
             Mouse.cursor = (mUseHandCursor && mEnabled && event.interactsWith(this)) ? 
                 MouseCursor.BUTTON : MouseCursor.AUTO;
@@ -222,6 +222,22 @@ package starling.display
                 mDownState = value;
                 if (mIsDown) mBackground.texture = value;
             }
+        }
+        
+        /** The vertical alignment of the text on the button. */
+        public function get textVAlign():String { return mTextField.vAlign; }
+        public function set textVAlign(value:String):void
+        {
+            createTextField();
+            mTextField.vAlign = value;
+        }
+        
+        /** The horizontal alignment of the text on the button. */
+        public function get textHAlign():String { return mTextField.hAlign; }
+        public function set textHAlign(value:String):void
+        {
+            createTextField();
+            mTextField.hAlign = value;
         }
         
         /** The bounds of the textfield on the button. Allows moving the text to a custom position. */

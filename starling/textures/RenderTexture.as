@@ -20,7 +20,6 @@ package starling.textures
     import starling.display.DisplayObject;
     import starling.display.Image;
     import starling.errors.MissingContextError;
-    import starling.utils.VertexData;
     import starling.utils.getNextPowerOfTwo;
 
     /** A RenderTexture is a dynamic texture onto which you can draw any display object.
@@ -55,7 +54,7 @@ package starling.textures
      *  </p>
      *     
      */
-    public class RenderTexture extends Texture
+    public class RenderTexture extends SubTexture
     {
         private const PMA:Boolean = true;
         
@@ -64,9 +63,6 @@ package starling.textures
         private var mHelperImage:Image;
         private var mDrawing:Boolean;
         private var mBufferReady:Boolean;
-        
-        private var mNativeWidth:int;
-        private var mNativeHeight:int;
         private var mSupport:RenderSupport;
         
         /** helper object */
@@ -81,12 +77,14 @@ package starling.textures
         {
             if (scale <= 0) scale = Starling.contentScaleFactor; 
             
-            mNativeWidth  = getNextPowerOfTwo(width  * scale);
-            mNativeHeight = getNextPowerOfTwo(height * scale);
+            var nativeWidth:int  = getNextPowerOfTwo(width  * scale);
+            var nativeHeight:int = getNextPowerOfTwo(height * scale);
             mActiveTexture = Texture.empty(width, height, PMA, true, scale);
             
+            super(mActiveTexture, new Rectangle(0, 0, width, height), true);
+            
             mSupport = new RenderSupport();
-            mSupport.setOrthographicProjection(0, 0, mNativeWidth/scale, mNativeHeight/scale);
+            mSupport.setOrthographicProjection(0, 0, nativeWidth/scale, nativeHeight/scale);
             
             if (persistent)
             {
@@ -99,6 +97,7 @@ package starling.textures
         /** @inheritDoc */
         public override function dispose():void
         {
+            mSupport.dispose();
             mActiveTexture.dispose();
             
             if (isPersistent) 
@@ -110,7 +109,8 @@ package starling.textures
             super.dispose();
         }
         
-        /** Draws an object into the texture.
+        /** Draws an object into the texture. Note that any filters on the object will currently
+         *  be ignored.
          * 
          *  @param object       The object to draw.
          *  @param matrix       If 'matrix' is null, the object will be drawn adhering its 
@@ -145,13 +145,8 @@ package starling.textures
          *  switches and allows you to draw multiple objects into a non-persistent texture. */
         public function drawBundled(drawingBlock:Function, antiAliasing:int=0):void
         {
-            var scale:Number = mActiveTexture.scale;
             var context:Context3D = Starling.context;
             if (context == null) throw new MissingContextError();
-            
-            // limit drawing to relevant area
-            sScissorRect.setTo(0, 0, mActiveTexture.width * scale, mActiveTexture.height * scale);
-            context.setScissorRectangle(sScissorRect)
             
             // persistent drawing uses double buffering, as Molehill forces us to call 'clear'
             // on every render target once per update.
@@ -165,6 +160,10 @@ package starling.textures
                 mHelperImage.texture = mBufferTexture;
             }
             
+            // limit drawing to relevant area
+            sScissorRect.setTo(0, 0, mActiveTexture.nativeWidth, mActiveTexture.nativeHeight);
+
+            mSupport.scissorRectangle = sScissorRect;
             mSupport.renderTarget = mActiveTexture;
             mSupport.clear();
             
@@ -188,7 +187,7 @@ package starling.textures
                 mSupport.finishQuadBatch();
                 mSupport.nextFrame();
                 mSupport.renderTarget = null;
-                context.setScissorRectangle(null);
+                mSupport.scissorRectangle = null;
             }
         }
         
@@ -203,31 +202,13 @@ package starling.textures
             mSupport.renderTarget = null;
         }
         
-        /** @inheritDoc */
-        public override function adjustVertexData(vertexData:VertexData, vertexID:int, count:int):void
-        {
-            mActiveTexture.adjustVertexData(vertexData, vertexID, count);   
-        }
-        
         /** Indicates if the texture is persistent over multiple draw calls. */
         public function get isPersistent():Boolean { return mBufferTexture != null; }
         
         /** @inheritDoc */
-        public override function get width():Number { return mActiveTexture.width; }        
+        public override function get base():TextureBase { return mActiveTexture.base; }
         
         /** @inheritDoc */
-        public override function get height():Number { return mActiveTexture.height; }        
-        
-        /** @inheritDoc */
-        public override function get scale():Number { return mActiveTexture.scale; }
- 
-        /** @inheritDoc */
-        public override function get premultipliedAlpha():Boolean { return PMA; }
-        
-        /** @inheritDoc */
-        public override function get base():TextureBase 
-        { 
-            return mActiveTexture.base; 
-        }
+        public override function get root():ConcreteTexture { return mActiveTexture.root; }
     }
 }
