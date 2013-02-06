@@ -1,20 +1,24 @@
 package com.mikesoylu.fortia 
 {
+	import starling.animation.Transitions;
+	import starling.animation.Tween;
 	import starling.core.Starling;
 	import starling.display.DisplayObject;
+	import starling.display.Quad;
 	import starling.display.Sprite;
 	import starling.events.EnterFrameEvent;
 	import starling.events.Event;
 	
 	public class fState extends Sprite 
 	{
+		private var shakeTween:Tween;
 		/**
 		 * Elapsed time since load
 		 */
 		protected static var elapsedTime:Number = 0;
 		protected static var frameTime:Number = 0;
 		
-		private var shakeCounter:Number = 0;
+		// private var shakeCounter:Number = 0;
 		
 		public function fState() 
 		{
@@ -27,18 +31,34 @@ package com.mikesoylu.fortia
 			addEventListener(EnterFrameEvent.ENTER_FRAME, frameListener);
 		}
 		
+		public function flash(duration:Number, color:uint = 0xFFFFFF):void
+		{
+			var overlay:Quad = new Quad(fGame.width, fGame.height);
+			addChild(overlay);
+			
+			var tween:Tween = new Tween(overlay, duration);
+			tween.fadeTo(0);
+			tween.onComplete = function():void { removeChild(overlay); };
+			Starling.juggler.add(tween);
+		}
+		
 		/** TODO: make this variable intensity */
 		public function shake(duration:Number):void
 		{
-			if (shakeCounter < duration)
+			// tween the screen to a random pos
+			this.x = Math.random() * 20 - 10;
+			this.y = Math.random() * 20 - 10;
+			if (shakeTween != null)
 			{
-				shakeCounter = duration;
+				Starling.juggler.remove(shakeTween);
 			}
+			shakeTween = new Tween(this, duration, Transitions.EASE_OUT);
+			shakeTween.moveTo(0,0);
+			Starling.juggler.add(shakeTween);
 		}
 		/** is called on enter frame, dt is in seconds */
 		public function update(dt:Number):void
 		{
-			
 		}
 		/** is called when state is removed */
 		public function destroy():void
@@ -72,17 +92,7 @@ package com.mikesoylu.fortia
 				}
 			}
 			
-			// shake the mother fucker
-			if (shakeCounter > 0)
-			{
-				x = Math.random() * 10 - 5;
-				y = Math.random() * 10 - 5;
-			} else
-			{
-				x = 0;
-				y = 0;
-			}
-			shakeCounter -= dt;
+			fGame.updateSounds(dt);
 			
 			update(dt);
 		}

@@ -22,7 +22,7 @@ package com.mikesoylu.fortia
 			for (var i:int = 0; i < len; i++)
 			{
 				var obj:fIPoolable = objects[i];
-				if (obj.isAlive == false)
+				if (obj.alive == false)
 				{
 					obj.revive();
 					return obj;

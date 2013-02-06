@@ -16,6 +16,21 @@ package com.mikesoylu.fortia
 			return value;
 		}
 		
+		/**
+		 * linear interpolation
+		 * @param	delta
+		 * @param	from
+		 * @param	to
+		 * @return
+		 */
+		public static function lerp( delta:Number, from:Number, to:Number):Number
+		{
+			if ( delta > 1 ) return to;
+			if ( delta < 0 ) return from;
+
+			return from + ( to - from ) * delta;
+		}
+		
 		/** returns the sign of a numeric value*/
 		public static function sign(value:Number):Number
 		{

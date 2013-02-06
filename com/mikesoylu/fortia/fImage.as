@@ -12,9 +12,17 @@ package com.mikesoylu.fortia
 		public var halfWidth:Number;
 		public var halfHeight:Number;
 		
-		public function fImage(texture:Texture)
+		public function fImage(texture:Texture, x:Number = 0, y:Number = 0, setPivotToCenter:Boolean = false)
 		{
 			super(texture);
+			this.x = x;
+			this.y = y;
+			
+			if (true == setPivotToCenter)
+			{
+				pivotX = width * 0.5;
+				pivotY = height * 0.5;
+			}
 		}
 		public function update(dt:Number):void
 		{
