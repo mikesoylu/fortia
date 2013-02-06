@@ -1,15 +1,14 @@
 # Fortia Game Engine
 
-Fortia is a 2D game engine inspired by flixel and built on starling.
+Fortia is a minimal 2D game engine inspired by flixel and built on starling.
 
 ## Features:
- * Texture asset management.
- * State managment.
- * Cross platform development with AIR.
+ * Asset management via Starling.
+ * Scene managment, simple scene effects like shake and fade.
+ * Finite state machine for things like AI state managment.
  * Object pooling.
-
+ * Fast and simple overlap queries via quad-trees.
+ * Cross platform development with AIR.
 
 ## TODO:
- * Proper collision detection (possibly NAPE)
- * Sound asset management.
  * Multi resolution asset management.
