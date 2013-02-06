@@ -12,9 +12,21 @@ package com.mikesoylu.fortia
 		public var halfWidth:Number = NaN;
 		public var halfHeight:Number = NaN;
 		
-		public function fMovieClip(textures:Vector.<Texture>, fps:int = 12) 
+		public function fMovieClip(textures:Vector.<Texture>, fps:int = 12, x:Number = 0, y:Number = 0, setPivotToCenter:Boolean = true)
 		{
 			super(textures, fps);
+			
+			this.x = x;
+			this.y = y;
+			
+			// all fortia objects are not touchable by default
+			touchable = false;
+			
+			if (true == setPivotToCenter)
+			{
+				halfWidth = pivotX = width * 0.5;
+				halfHeight = pivotY = height * 0.5;
+			} 
 		}
 		
 		public function update(dt:Number):void

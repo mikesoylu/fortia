@@ -13,6 +13,13 @@ package com.mikesoylu.fortia
 		public var halfWidth:Number = NaN;
 		public var halfHeight:Number = NaN;
 		
+		public function fSprite()
+		{
+			super();
+			// all fortia objects are not touchable by default
+			touchable = false;
+		}
+		
 		public function update(dt:Number):void
 		{
 			

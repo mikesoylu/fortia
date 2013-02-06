@@ -15,8 +15,12 @@ package com.mikesoylu.fortia
 		public function fImage(texture:Texture, x:Number = 0, y:Number = 0, setPivotToCenter:Boolean = true)
 		{
 			super(texture);
+			
 			this.x = x;
 			this.y = y;
+			
+			// all fortia objects are not touchable by default
+			touchable = false;
 			
 			if (true == setPivotToCenter)
 			{

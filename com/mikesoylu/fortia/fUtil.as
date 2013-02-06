@@ -16,13 +16,7 @@ package com.mikesoylu.fortia
 			return value;
 		}
 		
-		/**
-		 * linear interpolation
-		 * @param	delta
-		 * @param	from
-		 * @param	to
-		 * @return
-		 */
+		/** linear interpolation, delta is between 0..1 */
 		public static function lerp( delta:Number, from:Number, to:Number):Number
 		{
 			if ( delta > 1 ) return to;

@@ -42,7 +42,7 @@ package com.mikesoylu.fortia
 			starling.simulateMultitouch = true;
 			starling.start();
 			
-			isHighDefinition = fGame.height > 1024;
+			isHighDefinition = fGame.height >= 720;
 			
 			trace("<fGame> isHighDefinition:", isHighDefinition);
 			trace("<fGame>", fGame.width, "x", fGame.height);
@@ -51,17 +51,17 @@ package com.mikesoylu.fortia
 		/**
 		 * gets the current fState
 		 */
-		public static function get state():fState
+		public static function get scene():fScene
 		{
-			return starling.stage.getChildAt(0) as fState;
+			return starling.stage.getChildAt(0) as fScene;
 		}
 		
 		/**
 		 * changes the state and kills the previous
 		 */
-		public static function set state(rhs:fState):void
+		public static function set scene(rhs:fScene):void
 		{
-			(starling.stage.getChildAt(0) as fState).destroy();
+			(starling.stage.getChildAt(0) as fScene).destroy();
 			starling.stage.removeChildAt(0, true);
 			starling.stage.addChildAt(rhs, 0);
 		}
