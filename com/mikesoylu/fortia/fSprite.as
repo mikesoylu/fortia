@@ -4,9 +4,8 @@ package com.mikesoylu.fortia
 	import starling.display.Sprite;
 	
 	/**
-	 * basic sprite with update and destroy functions
-	 * should be used for sprites with children
-	 * NOTE: Doesn't manage children. See fLayer.
+	 * Basic sprite with update and destroy functions, should be used for sprites with children
+	 * WARNING: Doesn't manage children. See <code>fLayer</code>
 	 */
 	public class fSprite extends Sprite implements fIBasic
 	{

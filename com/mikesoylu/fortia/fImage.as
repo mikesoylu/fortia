@@ -5,7 +5,7 @@ package com.mikesoylu.fortia
 	import starling.textures.Texture;
 	
 	/**
-	 * like fSprite but can't have children
+	 * Game entity like <code>fSprite</code> but can't have children
 	 */
 	public class fImage extends Image implements fIBasic
 	{

@@ -10,7 +10,6 @@ package com.mikesoylu.fortia
 	 */
 	public class fLayer extends Sprite implements fIBasic
 	{
-		public var mask:uint = 0x000000;
 		
 		public function update(dt:Number):void
 		{

@@ -2,11 +2,15 @@ package com.mikesoylu.fortia
 {
 	import flash.utils.Dictionary;
 	
+	/**
+	 * Basic finite state machine for game logic.
+	 * States are accessed by their names so you needn't track their references.
+	 */
 	public class fStateMachine 
 	{
 		private var states:Dictionary;
 		private var parent:Object;
-		private var _state:fIFSMState = null;
+		private var _state:fIState = null;
 		
 		public function fStateMachine(parent:Object)
 		{
@@ -15,7 +19,7 @@ package com.mikesoylu.fortia
 		}
 		
 		/** adds and init's a new state with a name and returns the name of added state */
-		public function addState(name:String, newState:fIFSMState):String
+		public function addState(name:String, newState:fIState):String
 		{
 			if (name in states)
 			{
@@ -27,12 +31,6 @@ package com.mikesoylu.fortia
 			}
 			
 			return name;
-		}
-		
-		/** returns the current state */
-		public function get state():fIFSMState
-		{
-			return _state;
 		}
 		
 		/** sets the current state by name */

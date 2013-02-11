@@ -1,8 +1,7 @@
 package com.mikesoylu.fortia 
 {
 	/**
-	 * ...
-	 * @author bms
+	 * An error
 	 */
 	public class fError extends Error 
 	{

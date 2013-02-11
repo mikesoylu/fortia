@@ -2,9 +2,12 @@ package com.mikesoylu.fortia
 {
 	import flash.geom.Rectangle;
 
+	/**
+	 * QuadTree data structure with utility functions to check overlapping entities.
+	 */
 	public class fQuadTree 
 	{
-		public static const MAX_DEPTH:int = 8;
+		public static const MAX_DEPTH:int = 4;
 		public static const MAX_LEAF_ELEMS:int = 4;
 		
 		/** these are in counter clockwise order starting from top left */
@@ -23,16 +26,16 @@ package com.mikesoylu.fortia
 			var lenB:int = elementsB.length;
 			
 			// this probably won't happen here but we still check like good little coders
-			if (lenA == 0 || lenB == 0)
+			if (lenA == 0 || lenB == 0 || (null == callback && true == _collides))
 			{
 				// we don't have any more possible collision
 				return;
 			}
 			
 			// are we done yet?
-			if (lenA + lenB < MAX_LEAF_ELEMS || depth > MAX_DEPTH)
+			if (lenA <= MAX_LEAF_ELEMS || lenB <= MAX_LEAF_ELEMS || depth >= MAX_DEPTH)
 			{
-				// we have potential colls
+				// we have potential collisions
 				for each (var e1:fIBasic in elementsA)
 				{
 					if (e1 is fIPoolable && false == (e1 as fIPoolable).alive)
@@ -51,6 +54,9 @@ package com.mikesoylu.fortia
 							if (null != callback)
 							{
 								callback(e1, e2);
+							} else
+							{
+								return;
 							}
 						}
 					}
@@ -61,17 +67,19 @@ package com.mikesoylu.fortia
 				quadrants = new Vector.<fQuadTree>(4);
 				
 				var quadRects:Vector.<Rectangle> = new Vector.<Rectangle>();
-				quadRects.push(new Rectangle(bounds.left, bounds.top, bounds.width / 2, bounds.height / 2));
-				quadRects.push(new Rectangle(bounds.left, bounds.top + bounds.height / 2, bounds.width / 2, bounds.height / 2));
-				quadRects.push(new Rectangle(bounds.left + bounds.width / 2, bounds.top + bounds.height / 2, bounds.width / 2, bounds.height / 2));
-				quadRects.push(new Rectangle(bounds.left + bounds.width / 2, bounds.top, bounds.width / 2, bounds.height / 2));
+				const hW:int = bounds.width / 2;
+				const hH:int = bounds.height / 2;
+				quadRects.push(new Rectangle(bounds.left, bounds.top, hW, hH));
+				quadRects.push(new Rectangle(bounds.left, bounds.top + hH, hW, hH));
+				quadRects.push(new Rectangle(bounds.left + hW, bounds.top + hH, hW, hH));
+				quadRects.push(new Rectangle(bounds.left + hW, bounds.top, hW, hH));
 				
 				for (var i:int = 0; i < 4; ++i)
 				{
 					var quadElemsA:Vector.<fIBasic> = new Vector.<fIBasic>();
 					var quadElemsB:Vector.<fIBasic> = new Vector.<fIBasic>();
 					
-					// get quadrant A groups
+					// get groupA quadrant elems
 					for (var j:int = 0; j < lenA; ++j)
 					{
 						if (elementsA[j] is fIPoolable && false == elementsA[j].alive)
@@ -84,7 +92,7 @@ package com.mikesoylu.fortia
 						}
 					}
 					
-					// get quadrant B groups
+					// get groupB quadrant elems
 					for (j = 0; j < lenB; ++j)
 					{
 						if (elementsB[j] is fIPoolable && false == elementsB[j].alive)

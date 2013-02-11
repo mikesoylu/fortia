@@ -9,6 +9,9 @@ package com.mikesoylu.fortia
 	import starling.events.EnterFrameEvent;
 	import starling.events.Event;
 	
+	/**
+	 * A fortia game scene
+	 */
 	public class fScene extends Sprite
 	{
 		private var shakeTween:Tween;
