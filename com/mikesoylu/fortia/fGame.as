@@ -91,6 +91,16 @@ package com.mikesoylu.fortia
 			starling.stage.addChildAt(rhs, 0);
 		}
 
+		public static function get mouseX():Number
+		{
+			return starling.nativeStage.mouseX;
+		}
+		
+		public static function get mouseY():Number
+		{
+			return starling.nativeStage.mouseY;
+		}
+		
 		public static function get width():int
 		{
 			return starling.stage.stageWidth;
