@@ -15,10 +15,11 @@ package com.mikesoylu.fortia
 	public class fScene extends Sprite
 	{
 		private var shakeTween:Tween;
-		/**
-		 * Elapsed time since load
-		 */
+		
+		/** Elapsed time since load */
 		protected static var elapsedTime:Number = 0;
+		
+		/** Elapsed time since last frame */
 		protected static var frameTime:Number = 0;
 		
 		public function fScene()
@@ -112,7 +113,7 @@ package com.mikesoylu.fortia
 			frameTime = dt;
 			var i:int;
 			
-			/* iterate over children */
+			// iterate over children
 			for (i = 0; i < numChildren; i++)
 			{
 				var ch:DisplayObject = getChildAt(i);
