@@ -33,12 +33,25 @@ package com.mikesoylu.fortia
 			return name;
 		}
 		
-		/** sets the current state by name */
+		/** sets and activates the current state by name, also deactivates previous */
 		public function set state(name:String):void
 		{
-			_state = states[name];
+			if (name in states)
+			{
+				if (null != _state)
+				{
+					_state.deactivate();
+				}
+				_state = states[name];
+				_state.activate();
+				
+			} else
+			{
+				throw new fError("FSM has no state named \"" + name + "\"");
+			}
 		}
 		
+		/** updates the current state */
 		public function update(dt:Number):void
 		{
 			if (null != _state)

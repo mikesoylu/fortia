@@ -10,6 +10,13 @@ package com.mikesoylu.fortia
 	 */
 	public class fLayer extends Sprite implements fIBasic
 	{
+		public function fLayer()
+		{
+			super();
+			
+			// all fortia objects are not touchable by default
+			touchable = false;
+		}
 		
 		public function update(dt:Number):void
 		{
