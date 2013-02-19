@@ -7,6 +7,8 @@ package com.mikesoylu.fortia
 	import flash.events.Event;
 	import flash.ui.Multitouch;
 	import flash.ui.MultitouchInputMode;
+	import starling.display.BlendMode;
+	import starling.display.DisplayObject;
 	
 	import starling.text.TextField;
 	import starling.utils.HAlign;
@@ -19,7 +21,7 @@ package com.mikesoylu.fortia
 	 */
 	public class fGame extends Sprite
 	{
-		public static var debug:Boolean = true;
+		public static const debug:Boolean = CONFIG::debug;
 
 		private static var _starling:Starling = null;
 		private static var _isHighDefinition:Boolean = false;
@@ -109,11 +111,10 @@ package com.mikesoylu.fortia
 
 			if (null == debugText)
 			{
-				debugText = new TextField(width, height, msg, "mini", 8);
+				debugText = new TextField(width, height, msg, "mini", 8, 0xFFFFFF);
 				debugText.vAlign = VAlign.TOP;
 				debugText.hAlign = HAlign.LEFT;
 				debugText.touchable = false;
-				debugText.color = ~_starling.stage.color | 0xFF000000;
 				_starling.stage.addChild(debugText);
 			} else
 			{
@@ -128,23 +129,37 @@ package com.mikesoylu.fortia
 		}
 
 		/**
-		 * gets the current fState
+		 * gets the current fScene
 		 */
 		public static function get scene():fScene
 		{
-			// first child is the scene
-			return _starling.stage.getChildAt(0) as fScene;
+			for (var i:int = 0; i < _starling.stage.numChildren; i++)
+			{
+				var ch:DisplayObject = _starling.stage.getChildAt(i);
+				if (ch is fScene)
+				{
+					return ch as fScene;
+				}
+			}
+			return null;
 		}
 
 		/**
-		 * changes the state and kills the previous
+		 * changes the scene and kills the previous
 		 */
 		public static function set scene(rhs:fScene):void
 		{
-			// first child is the scene
-			(_starling.stage.getChildAt(0) as fScene).destroy();
-			_starling.stage.removeChildAt(0, true);
-			_starling.stage.addChildAt(rhs, 0);
+			for (var i:int = 0; i < _starling.stage.numChildren; i++)
+			{
+				var ch:DisplayObject = _starling.stage.getChildAt(i);
+				if (ch is fScene)
+				{
+					(ch as fScene).destroy();
+					_starling.stage.removeChildAt(i, true);
+					_starling.stage.addChildAt(rhs, i);
+					return;
+				}
+			}
 		}
 
 		public static function get mouseX():Number

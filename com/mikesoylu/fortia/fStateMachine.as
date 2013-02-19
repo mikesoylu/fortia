@@ -1,4 +1,4 @@
-package com.mikesoylu.fortia 
+package com.mikesoylu.fortia
 {
 	import flash.utils.Dictionary;
 	
@@ -6,7 +6,7 @@ package com.mikesoylu.fortia
 	 * Basic finite state machine for game logic.
 	 * States are accessed by their names so you needn't track their references.
 	 */
-	public class fStateMachine 
+	public class fStateMachine
 	{
 		private var states:Dictionary;
 		private var parent:Object;
@@ -24,7 +24,8 @@ package com.mikesoylu.fortia
 			if (name in states)
 			{
 				throw new fError("FSM already has a state named \"" + name + "\"");
-			} else
+			}
+			else
 			{
 				states[name] = newState;
 				newState.init(parent, this);
@@ -45,10 +46,27 @@ package com.mikesoylu.fortia
 				_state = states[name];
 				_state.activate();
 				
-			} else
+			}
+			else
 			{
 				throw new fError("FSM has no state named \"" + name + "\"");
 			}
+		}
+		
+		/** gets the current state by name */
+		public function get state():String
+		{
+			if (null != _state)
+			{
+				for (var s:String in states)
+				{
+					if (states[s] == _state)
+					{
+						return s;
+					}
+				}
+			}
+			return null;
 		}
 		
 		/** updates the current state */
