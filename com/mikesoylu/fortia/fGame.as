@@ -71,7 +71,7 @@ package com.mikesoylu.fortia
 
 			_starling.start();
 
-			_isHighDefinition = fGame.height >= 720;
+			_isHighDefinition = Math.max(fGame.height, fGame.width) >= 1080;
 
 			switch (Capabilities.playerType)
 			{

@@ -40,6 +40,19 @@ package com.mikesoylu.fortia
 				}
 			}
 		}
+		
+		/** returns the scale if scaleX == scaleY */
+		public function get scale():Number
+		{
+			return scaleX == scaleY ? scaleX : 0;
+		}
+		
+		public function set scale(rhs:Number):void
+		{
+			scaleX = rhs;
+			scaleY = rhs;
+		}
+		
 		/** this guy doesn't have a rect */
 		public final function get rect():Rectangle 
 		{

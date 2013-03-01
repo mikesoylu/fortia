@@ -29,6 +29,18 @@ package com.mikesoylu.fortia
 			
 		}
 		
+		/** returns the scale if scaleX == scaleY */
+		public function get scale():Number
+		{
+			return scaleX == scaleY ? scaleX : 0;
+		}
+		
+		public function set scale(rhs:Number):void
+		{
+			scaleX = rhs;
+			scaleY = rhs;
+		}
+		
 		/**
 		 * This is faster then get bounds() and depends on halfWidth and halfHeight
 		 * WARNING: it assumes the pivot is the center of the object
