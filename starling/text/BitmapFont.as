@@ -259,7 +259,7 @@ package starling.text
                         }
                         else if (char == null)
                         {
-                            trace("[Starling] Missing character: " + charID);
+                            //trace("[Starling] Missing character: " + charID);
                         }
                         else
                         {
