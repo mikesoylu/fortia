@@ -54,9 +54,9 @@ package com.mikesoylu.fortia
 		}
 		
 		/** Used to play sounds */
-		public static function play(name:String, loops:int = 0):SoundChannel
+		public static function play(name:String, loops:int = 0, volume:Number = 1, pan:Number = 0):SoundChannel
 		{
-			return instance.playSound(name, 0, loops, null);
+			return instance.playSound(name, 0, loops, new SoundTransform(volume, pan));
 		}
 		
 		public static function getTexture(name:String):Texture
