@@ -38,7 +38,7 @@ package com.mikesoylu.fortia
 		/** flashes the screen for a while, useful for fade-in */
 		public function flash(duration:Number, callback:Function = null, color:uint = 0xFFFFFF):void
 		{
-			var overlay:Quad = new Quad(fGame.width, fGame.height);
+			var overlay:Quad = new Quad(fGame.width, fGame.height, color);
 			addChild(overlay);
 			
 			var tween:Tween = new Tween(overlay, duration);
