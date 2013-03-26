@@ -22,6 +22,7 @@ package com.mikesoylu.fortia
 			if (null == _instance)
 			{
 				_instance = new AssetManager(scaleFactor, useMipmaps);
+				_instance.verbose = true;
 			}
 			return _instance;
 		}
