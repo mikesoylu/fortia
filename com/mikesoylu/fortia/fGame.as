@@ -111,7 +111,7 @@ package com.mikesoylu.fortia
 
 			if (null == debugText)
 			{
-				debugText = new TextField(width, height, msg, "mini", 8, 0xFFFFFF);
+				debugText = new TextField(width, height, msg, "mini", 8, ~_starling.stage.color);
 				debugText.vAlign = VAlign.TOP;
 				debugText.hAlign = HAlign.LEFT;
 				debugText.touchable = false;
