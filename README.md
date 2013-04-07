@@ -10,9 +10,9 @@ Fortia is a minimal 2D game engine written in Actionscript3 inspired by flixel a
  * Built-in object pooling.
  * Fast and simple overlap queries via quad-trees.
  * Cross platform development with AIR.
+ * Save-game utils.
 
 
 ## TODO:
  * Proper sound management for layered music.
- * Box2D wrappers for easy development.
  * Tile-map loading utils.
