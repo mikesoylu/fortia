@@ -22,6 +22,7 @@ package com.mikesoylu.fortia
 	public class fGame extends Sprite
 	{
 		public static const debug:Boolean = CONFIG::debug;
+		public static var keys:Vector.<Object> = new Vector.<Object>(256);
 
 		private static var _starling:Starling = null;
 		private static var _isHighDefinition:Boolean = false;
@@ -41,6 +42,9 @@ package com.mikesoylu.fortia
 
 			this.initialClass = initialClass;
 			this.AA = AA;
+			for (var i:int = 0; i < 256; i++) {
+				keys[i] = { justDown:false, justUp:false, down:false };
+			}
 
 			addEventListener(flash.events.Event.ADDED_TO_STAGE, initGame);
 		}

@@ -65,13 +65,6 @@ package com.mikesoylu.fortia {
 			return (Math.abs(a - b) < threshold);
 		}
 		
-		/** swaps two objects */
-		public static function swap(a:*, b:*):void {
-			var tmp:* = a;
-			a = b;
-			b = tmp;
-		}
-		
 		/**
 		 *  Converts an HSB color specified by the parameters to a
 		 *  uint RGB color.

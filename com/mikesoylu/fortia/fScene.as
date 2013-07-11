@@ -8,6 +8,7 @@ package com.mikesoylu.fortia
 	import starling.display.Sprite;
 	import starling.events.EnterFrameEvent;
 	import starling.events.Event;
+	import starling.events.KeyboardEvent;
 	
 	/**
 	 * A fortia game scene
@@ -33,6 +34,20 @@ package com.mikesoylu.fortia
 		{
 			removeEventListener(Event.ADDED, init);
 			addEventListener(EnterFrameEvent.ENTER_FRAME, frameListener);
+			stage.addEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			stage.addEventListener(KeyboardEvent.KEY_UP, keyUpListener);
+		}
+		
+		private function keyDownListener(e:KeyboardEvent):void {
+			if (e.keyCode < 256) {
+				fGame.keys[e.keyCode] = { justDown:true, justUp:false, down:true };
+			}
+		}
+		
+		private function keyUpListener(e:KeyboardEvent):void {
+			if (e.keyCode < 256) {
+				fGame.keys[e.keyCode] = { justDown:false, justUp:true, down:false };
+			}
 		}
 		
 		/** flashes the screen for a while, useful for fade-in */
@@ -94,6 +109,9 @@ package com.mikesoylu.fortia
 		public function destroy():void
 		{
 			removeEventListener(EnterFrameEvent.ENTER_FRAME, frameListener);
+			stage.removeEventListener(KeyboardEvent.KEY_DOWN, keyDownListener);
+			stage.removeEventListener(KeyboardEvent.KEY_UP, keyUpListener);
+			
 			for (var i:int = 0; i < numChildren; i++)
 			{
 				var ch:DisplayObject = getChildAt(i);
@@ -124,6 +142,13 @@ package com.mikesoylu.fortia
 			}
 			
 			update(dt);
+			
+			// update key states
+			for (var key in fGame.keys) {
+				var value:Object = fGame.keys[key];
+				value.justDown = false;
+				value.justUp = false;
+			}
 		}
 	}
 
