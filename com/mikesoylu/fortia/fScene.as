@@ -40,7 +40,8 @@ package com.mikesoylu.fortia
 		
 		private function keyDownListener(e:KeyboardEvent):void {
 			if (e.keyCode < 256) {
-				fGame.keys[e.keyCode] = { justDown:true, justUp:false, down:true };
+				var wasDown:Boolean = fGame.keys[e.keyCode].down;
+				fGame.keys[e.keyCode] = { justDown:!wasDown, justUp:false, down:true };
 			}
 		}
 		
