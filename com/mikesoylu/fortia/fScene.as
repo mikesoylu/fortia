@@ -145,7 +145,7 @@ package com.mikesoylu.fortia
 			update(dt);
 			
 			// update key states
-			for (var key in fGame.keys) {
+			for (var key:Object in fGame.keys) {
 				var value:Object = fGame.keys[key];
 				value.justDown = false;
 				value.justUp = false;
