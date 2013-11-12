@@ -3,6 +3,7 @@ package com.mikesoylu.fortia
 	import flash.display.Sprite;
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
+	import flash.geom.Rectangle;
 	import flash.system.Capabilities;
 	import flash.events.Event;
 	import flash.ui.Multitouch;
@@ -75,6 +76,27 @@ package com.mikesoylu.fortia
 
 			_starling.start();
 
+			_starling.addEventListener(starling.events.Event.CONTEXT3D_CREATE, onContextCreated);
+			stage.addEventListener(flash.events.Event.RESIZE, stageResized)
+		}
+
+		private function stageResized(e:flash.events.Event):void
+		{
+			// set rectangle dimensions for viewPort:
+			var viewPortRectangle:Rectangle = new Rectangle();
+			viewPortRectangle.width = stage.stageWidth;
+			viewPortRectangle.height = stage.stageHeight;
+
+			// resize the viewport:
+			_starling.viewPort = viewPortRectangle
+
+			// assign the new stage width and height:
+			_starling.stage.stageWidth = stage.stageWidth
+			_starling.stage.stageHeight = stage.stageHeight
+		}
+
+		private function onContextCreated(e:starling.events.Event):void 
+		{
 			_isHighDefinition = Math.max(fGame.height, fGame.width) >= 1080;
 
 			switch (Capabilities.playerType)
@@ -88,18 +110,12 @@ package com.mikesoylu.fortia
 					_isRunningOnDevice = true;
 			}
 
-			trace("<fGame> isHighDefinition:", _isHighDefinition);
-			trace("<fGame> isRunningOnDevice:", _isRunningOnDevice);
-			trace("<fGame> stageSize:", fGame.width + "x" + fGame.height);
-
-			_starling.addEventListener(starling.events.Event.CONTEXT3D_CREATE, onContextCreated);
-		}
-		
-		private function onContextCreated(e:starling.events.Event):void 
-		{
 			// are we running hardware or software?
 			_isHardware = Starling.context.driverInfo.toLowerCase().indexOf("software") == -1; 
 			trace("<fGame> isHardware:", _isHardware);
+			trace("<fGame> isHighDefinition:", _isHighDefinition);
+			trace("<fGame> isRunningOnDevice:", _isRunningOnDevice);
+			trace("<fGame> stageSize:", fGame.width + "x" + fGame.height);
 		}
 
 		/**
@@ -184,6 +200,16 @@ package com.mikesoylu.fortia
 		public static function get height():int
 		{
 			return _starling.stage.stageHeight;
+		}
+
+		public static function getDeviceHeight():int
+		{
+			return Capabilities.screenResolutionY;
+		}
+
+		public static function getDeviceWidth():int
+		{
+			return Capabilities.screenResolutionX;
 		}
 
 		/** is the app screen height >= 720px */
